@@ -26,15 +26,18 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         
         // initializing item value
         items = [
-            Item(category:"micromax", name:"Canvas"),
-            Item(category:"samsung", name:"Galaxy SFive"),
-            Item(category:"apple", name:"iPhone Seven"),
-            Item(category:"apple", name:"iPhone Six S"),
-            Item(category:"moto", name:"Moto Porwer"),
-            Item(category:"samsung", name:"Note Seven"),
-            Item(category:"sony", name:"Xperia Sseries"),
-            Item(category:"sony", name:"Xperia Zseries")
+            Item(category:"Samsung", name:"Canvas"),
+            Item(category:"Samsung", name:"Galaxy Porwer"),
+            Item(category:"Samsung", name:"Galaxy SFive"),
+            Item(category:"Apple", name:"iPhone Seven"),
+            Item(category:"Apple", name:"iPhone Six S"),
+            Item(category:"Samsung", name:"Note Seven"),
+            Item(category:"Sony", name:"Xperia Sseries"),
+            Item(category:"Sony", name:"Xperia Zseries")
         ]
+        
+        searchController.searchBar.scopeButtonTitles = ["All", "Apple", "Samsung", "Sony"]
+        searchController.searchBar.delegate = self
         
         // search controller
         
@@ -109,19 +112,29 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func filterContentForSearchText(searchText: String, scope: String = "All") {
         
-        filteredItem = items.filter { item in
-            return item.name.lowercaseString.containsString(searchText.lowercaseString)
-        }
         
-     
+        filteredItem = items.filter({( item : Item) -> Bool in
+            let categoryMatch = (scope == "All") || (item.category == scope)
+            return categoryMatch && item.name.lowercaseString.containsString(searchText.lowercaseString)
+        })
+        print(scope)
+
         tableView.reloadData()
     }
 
 }
 
-extension ViewController: UISearchResultsUpdating{
+extension ViewController: UISearchResultsUpdating, UISearchBarDelegate{
     func updateSearchResultsForSearchController(searchController: UISearchController) {
-        filterContentForSearchText(searchController.searchBar.text!)
+        let searchBar = searchController.searchBar
+        let scope = searchBar.scopeButtonTitles![searchBar.selectedScopeButtonIndex]
+        
+        filterContentForSearchText(searchController.searchBar.text!, scope: scope)
+    }
+    
+    func searchBar(searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
+        filterContentForSearchText(searchBar.text!, scope: searchBar.scopeButtonTitles![selectedScope])
     }
 }
+
 
